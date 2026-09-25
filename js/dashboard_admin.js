@@ -177,19 +177,85 @@ window.eliminarClase = async function(id) {
 }
 
 // ── NAVEGACIÓN Y LOGOUT ──────────────────────
-document.querySelectorAll('.nav-item[data-section]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.getElementById(btn.dataset.section).classList.add('active');
-    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-  });
-});
 
-document.getElementById('logoutBtn').addEventListener('click', async () => {
-  await supabase.auth.signOut();
-  window.location.href = 'login.html';
-});
+// Navegación entre secciones
+document
+    .querySelectorAll('.nav-item[data-section]')
+    .forEach(btn => {
+
+        btn.addEventListener('click', () => {
+
+            document
+                .querySelectorAll('.section')
+                .forEach(section => {
+                    section.classList.remove('active');
+                });
+
+            const target =
+                document.getElementById(
+                    btn.dataset.section
+                );
+
+            if (target) {
+                target.classList.add('active');
+            }
+
+            document
+                .querySelectorAll('.nav-item')
+                .forEach(item => {
+                    item.classList.remove('active');
+                });
+
+            btn.classList.add('active');
+        });
+    });
+
+
+// Cerrar sesión
+const logoutBtn =
+    document.getElementById('logoutBtn');
+
+if (logoutBtn) {
+
+    logoutBtn.addEventListener(
+        'click',
+        async () => {
+
+            logoutBtn.disabled = true;
+            logoutBtn.textContent = 'Saliendo...';
+
+            try {
+
+                const { error } =
+                    await supabase.auth.signOut();
+
+                if (error) {
+                    throw error;
+                }
+
+                window.location.replace(
+                    'inicio.html'
+                );
+
+            } catch (error) {
+
+                console.error(
+                    'Error al cerrar sesión:',
+                    error
+                );
+
+                logoutBtn.disabled = false;
+                logoutBtn.textContent = 'Salir';
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'No se pudo cerrar sesión',
+                    text: 'Inténtalo nuevamente.'
+                });
+            }
+        }
+    );
+}
 
 // PDF Generador
 document.getElementById('btnPDF').addEventListener('click', () => {
