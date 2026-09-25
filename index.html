@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crónicas Fiscales - Cargando...</title>
+    <!-- Cargamos Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <script type="module">
+        import { supabase } from './js/supabase.js';
+
+        async function verificarAcceso() {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                
+                if (!session) {
+                    // Si no hay sesión, mandarlo a la portada (inicio.html) o al login
+                    window.location.replace('inicio.html');
+                    return;
+                }
+
+                // Si hay sesión, consultamos su rol en la tabla usuarios
+                const { data: usuario, error } = await supabase
+                    .from('usuarios')
+                    .select('rol')
+                    .eq('id', session.user.id)
+                    .single();
+
+                if (error || !usuario) {
+                    window.location.replace('login.html');
+                    return;
+                }
+
+                // Redirección inteligente según el rol con Supabase
+                switch (usuario.rol) {
+                    case 'alumno':
+                        window.location.replace('dashboard_alumno.html');
+                        break;
+                    case 'docente':
+                        window.location.replace('dashboard_docente.html');
+                        break;
+                    case 'admin':
+                        window.location.replace('dashboard_admin.html');
+                        break;
+                    default:
+                        window.location.replace('login.html');
+                }
+            } catch (err) {
+                console.error("Error al verificar sesión:", err);
+                window.location.replace('inicio.html');
+            }
+        }
+
+        verificarAcceso();
+    </script>
+    <p style="text-align: center; font-family: sans-serif; margin-top: 20vh;">Verificando credenciales en la nube...</p>
+</body>
+</html>

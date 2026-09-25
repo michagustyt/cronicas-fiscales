@@ -1,0 +1,411 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+/* ============================================================
+   dark-mode.css — Estilos globales para el modo oscuro
+   Sistema "glass" verde/ámbar (Reto ISC901) — SOLO modo oscuro.
+   El modo claro no se toca en ningún archivo.
+   ============================================================ */
+
+/* Sobrescribir variables CSS (esquema capitulo.css / panel-docente.css / inicio.css) */
+html[data-theme="dark"] {
+    --text-dark: #EAF7F0;              /* Texto principal, blanco con tinte verde */
+    --text-light: #06120C;             /* Texto oscuro sobre botones/acentos claros */
+    --bg-body-start: #0A0F0C;          /* Fondo base casi negro */
+    --bg-body-end: #0F1710;            /* Variante para el degradado */
+    --bg-card: rgba(20, 32, 26, 0.55); /* Vidrio: verde muy oscuro translúcido */
+    --shadow-light: 0 8px 24px rgba(0, 0, 0, 0.55);
+    --shadow-heavy: 0 18px 45px rgba(0, 0, 0, 0.75);
+    --border-radius: 15px;
+    --primary-color: #49FFA4;          /* Verde neón — acento principal */
+    --secondary-color: #F2B04F;        /* Ámbar — acento secundario */
+    --accent-color: #F2B04F;           /* Ámbar — detalles/dorado */
+    --bg-correct: rgba(73, 255, 164, 0.12);
+    --border-correct: #49FFA4;
+    --bg-incorrect: rgba(255, 90, 90, 0.14);
+    --border-incorrect: #ff5a5a;
+    /* Nuevas variables de apoyo para el look "glass" */
+    --glass-border: rgba(73, 255, 164, 0.2);
+    --glass-blur: 14px;
+}
+
+/* Sobrescribir variables CSS (esquema dashboard.css) — red de seguridad
+   para cualquier elemento que use var(--primary)/var(--accent)/etc. */
+html[data-theme="dark"] {
+    --primary:   #49FFA4;
+    --secondary: #F2B04F;
+    --accent:    #F2B04F;
+    --dark:      #EAF7F0;
+    --light:     #0A0F0C;
+    --cream:     #0A0F0C;
+    --cream2:    #0F1710;
+    --border:    rgba(73, 255, 164, 0.18);
+    --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.45);
+    --shadow-md: 0 8px 28px rgba(0, 0, 0, 0.55);
+    --shadow-lg: 0 18px 45px rgba(0, 0, 0, 0.7);
+}
+
+/* Tipografía del sistema nuevo, solo mientras el tema es oscuro */
+html[data-theme="dark"] body {
+    font-family: 'Inter', sans-serif;
+}
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] h4,
+html[data-theme="dark"] .card-title,
+html[data-theme="dark"] .stat-value,
+html[data-theme="dark"] .section-title,
+html[data-theme="dark"] .modal-title,
+html[data-theme="dark"] .niv-card .niv-name {
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+/* Ajustes para SWEETALERT en modo oscuro */
+html[data-theme="dark"] .swal2-popup {
+    background-color: var(--bg-card) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    color: var(--text-dark) !important;
+    border: 2px solid var(--accent-color);
+}
+html[data-theme="dark"] .swal2-title,
+html[data-theme="dark"] .swal2-html-container {
+    color: var(--text-dark) !important;
+}
+
+/* Ajuste para inputs en modo oscuro (Panel Docente) */
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea {
+    background-color: rgba(15, 23, 18, 0.6) !important;
+    color: var(--text-dark) !important;
+    border-color: rgba(73, 255, 164, 0.3) !important;
+}
+
+html[data-theme="dark"] .level-card,
+html[data-theme="dark"] .hub-card {
+    background: var(--bg-card);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+}
+
+html[data-theme="dark"] table th {
+    background-color: rgba(73, 255, 164, 0.14);
+    color: #EAF7F0;
+}
+html[data-theme="dark"] table tbody tr {
+    background-color: rgba(19, 30, 24, 0.55);
+}
+html[data-theme="dark"] table tbody tr:nth-child(even) {
+    background-color: rgba(24, 38, 30, 0.6);
+}
+html[data-theme="dark"] table tbody tr:hover {
+    background-color: rgba(73, 255, 164, 0.1);
+}
+
+/* Ajustes de contraste para los botones de opciones */
+html[data-theme="dark"] .opciones button:not([disabled]):hover,
+html[data-theme="dark"] .opciones button:not([disabled]):focus,
+html[data-theme="dark"] .opciones button:not([disabled]):active {
+    color: var(--text-light) !important;
+}
+
+/* ============================================================
+   ESTILOS DEL BOTÓN DE CONFIGURACIÓN
+   ============================================================ */
+.config-btn {
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    background-color: var(--secondary-color);
+    color: #4f3422; /* Siempre oscuro para mantener legibilidad del botón en modo claro */
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.config-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+/* Botón de configuración — versión modo oscuro (texto casi negro + glow ámbar) */
+html[data-theme="dark"] .config-btn {
+    color: #06120C;
+    box-shadow: 0 4px 20px rgba(242, 176, 79, 0.35);
+}
+
+/* En móviles, ajustar si choca con safe-area */
+@media (max-width: 768px) {
+    .config-btn {
+        top: 10px;
+        left: 10px;
+        font-size: 0.8rem;
+        padding: 6px 12px;
+    }
+}
+
+/* ============================================================
+   REGLAS PARA OCULTAR FONDOS DE PANTALLA
+   ============================================================ */
+/* Restaura el gradiente seguro en el body, y borra imágenes de contenedores */
+[data-hide-bg="true"] body {
+    background-image: linear-gradient(to top, var(--bg-body-start), var(--bg-body-end)) !important;
+}
+[data-hide-bg="true"] .portada-background-illustration,
+[data-hide-bg="true"] .final-container,
+[data-hide-bg="true"] .game-container {
+    background-image: none !important;
+}
+
+/* ============================================================
+   TOGGLE SWITCH — Topbar
+   ============================================================ */
+.theme-toggle-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-right: 4px;
+}
+.theme-icon {
+    font-size: 16px;
+    line-height: 1;
+    opacity: 0.9;
+    user-select: none;
+}
+.theme-toggle-label {
+    position: relative;
+    display: inline-block;
+    width: 46px;
+    height: 24px;
+    cursor: pointer;
+}
+.theme-toggle-checkbox {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+.theme-toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.25);
+    border: 2px solid rgba(255,255,255,0.45);
+    border-radius: 24px;
+    transition: background 0.3s ease;
+}
+.theme-toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    left: 2px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+}
+/* Estado "encendido" del switch = modo oscuro activo → ahora verde neón en vez de morado */
+.theme-toggle-checkbox:checked + .theme-toggle-slider {
+    background: rgba(73, 255, 164, 0.3);
+    border-color: rgba(73, 255, 164, 0.55);
+}
+.theme-toggle-checkbox:checked + .theme-toggle-slider::before {
+    transform: translateY(-50%) translateX(22px);
+    background: #49FFA4;
+    box-shadow: 0 0 8px rgba(73, 255, 164, 0.6);
+}
+
+/* ============================================================
+   DASHBOARD — MODO OSCURO COMPLETO (glass verde/ámbar)
+   ============================================================ */
+html[data-theme="dark"] body {
+    background: radial-gradient(circle at top, #0F1710 0%, #0A0F0C 70%);
+    color: #EAF7F0;
+}
+
+/* Topbar */
+html[data-theme="dark"] .topbar {
+    background: rgba(15, 23, 18, 0.6) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(73, 255, 164, 0.18);
+    box-shadow: 0 3px 20px rgba(0,0,0,0.6);
+}
+
+/* Sidebar */
+html[data-theme="dark"] .sidebar {
+    background: rgba(12, 19, 15, 0.65) !important;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-right: 1px solid rgba(73, 255, 164, 0.15);
+}
+html[data-theme="dark"] .nav-item {
+    color: #B7CFC2;
+}
+html[data-theme="dark"] .nav-item:hover {
+    background: rgba(73, 255, 164, 0.1);
+    color: #49FFA4;
+}
+html[data-theme="dark"] .nav-item.active {
+    background: rgba(73, 255, 164, 0.14);
+    color: #49FFA4;
+    box-shadow: inset 0 0 0 1px rgba(73, 255, 164, 0.4), 0 0 16px rgba(73, 255, 164, 0.25);
+}
+html[data-theme="dark"] .user-pill {
+    border-bottom-color: rgba(73, 255, 164, 0.15);
+}
+html[data-theme="dark"] .user-pill .uemail {
+    color: #6E8C7C;
+}
+
+/* Cards */
+html[data-theme="dark"] .card {
+    background: rgba(19, 30, 24, 0.55) !important;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-color: rgba(73, 255, 164, 0.18);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+html[data-theme="dark"] .card-title {
+    color: #49FFA4;
+    text-shadow: 0 0 12px rgba(73, 255, 164, 0.35);
+}
+
+/* Stat cards */
+html[data-theme="dark"] .stat-card {
+    background: rgba(19, 30, 24, 0.55) !important;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(242, 176, 79, 0.2);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.45);
+}
+html[data-theme="dark"] .stat-label {
+    color: #6E8C7C;
+}
+html[data-theme="dark"] .stat-value {
+    color: #F2B04F;
+}
+
+/* Tables */
+html[data-theme="dark"] table {
+    background: rgba(19, 30, 24, 0.5) !important;
+}
+html[data-theme="dark"] tbody tr {
+    background-color: transparent;
+    border-bottom-color: rgba(73, 255, 164, 0.1);
+}
+html[data-theme="dark"] tbody tr:hover {
+    background: rgba(73, 255, 164, 0.08) !important;
+}
+html[data-theme="dark"] tbody td {
+    color: #C7DCD1;
+}
+html[data-theme="dark"] tbody td:first-child {
+    color: #49FFA4;
+}
+
+/* Section title */
+html[data-theme="dark"] .section-title {
+    color: #49FFA4;
+    border-bottom-color: rgba(73, 255, 164, 0.2);
+}
+
+/* Action bar */
+html[data-theme="dark"] .action-bar {
+    border-bottom-color: rgba(73, 255, 164, 0.15);
+}
+
+/* Modals */
+html[data-theme="dark"] .modal-box {
+    background: rgba(15, 23, 18, 0.75) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-color: rgba(73, 255, 164, 0.25);
+    box-shadow: 0 0 40px rgba(73, 255, 164, 0.08);
+}
+html[data-theme="dark"] .modal-title {
+    color: #49FFA4;
+}
+html[data-theme="dark"] .modal-close {
+    color: #6E8C7C;
+}
+html[data-theme="dark"] .modal-close:hover {
+    color: #49FFA4;
+}
+html[data-theme="dark"] .modal-overlay {
+    background: rgba(0,0,0,0.75);
+}
+
+/* Form elements */
+html[data-theme="dark"] .fg label {
+    color: #C7DCD1;
+}
+html[data-theme="dark"] .fg input,
+html[data-theme="dark"] .fg select,
+html[data-theme="dark"] .fg textarea {
+    background: rgba(15, 23, 18, 0.6) !important;
+    color: #EAF7F0 !important;
+    border-color: rgba(73, 255, 164, 0.25) !important;
+}
+html[data-theme="dark"] .fg input:focus,
+html[data-theme="dark"] .fg select:focus,
+html[data-theme="dark"] .fg textarea:focus {
+    border-color: #49FFA4 !important;
+    box-shadow: 0 0 0 3px rgba(73, 255, 164, 0.2) !important;
+}
+html[data-theme="dark"] .fg input[readonly] {
+    background: rgba(10, 15, 12, 0.7) !important;
+    color: #6E8C7C !important;
+}
+
+/* Niv cards (alumno) */
+html[data-theme="dark"] .niv-card {
+    background: rgba(19, 30, 24, 0.55) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-color: rgba(73, 255, 164, 0.2);
+}
+html[data-theme="dark"] .niv-card:hover {
+    border-color: #49FFA4;
+    box-shadow: 0 0 20px rgba(73, 255, 164, 0.15);
+}
+html[data-theme="dark"] .niv-card .niv-name {
+    color: #EAF7F0;
+}
+
+/* Progress bar */
+html[data-theme="dark"] .prog-bar-wrap {
+    background: rgba(73, 255, 164, 0.12);
+}
+
+/* Pregunta cards (docente) */
+html[data-theme="dark"] .pregunta-card {
+    background: rgba(19, 30, 24, 0.55) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-color: rgba(73, 255, 164, 0.18);
+}
+html[data-theme="dark"] .pregunta-card .pq-text {
+    color: #EAF7F0;
+}
+
+/* Loading & empty */
+html[data-theme="dark"] .loading-msg {
+    color: #F2B04F;
+}
+html[data-theme="dark"] .empty-state {
+    color: #6E8C7C;
+}

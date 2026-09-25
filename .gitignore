@@ -1,0 +1,17 @@
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Editores
+.vscode/
+.idea/
+
+# Variables de entorno
+.env
+.env.local
+
+# Dependencias
+node_modules/
+
+# Logs
+*.log
