@@ -1,163 +1,323 @@
 // ============================================================
-// theme.js — Lógica para configuración global (Tema y Fondos)
-// Se carga ANTES del DOM para evitar FOUC
+// theme.js
+// Tema global de Crónicas Fiscales
 // ============================================================
 
 (function () {
-    // ── 1. Aplicar preferencia guardada inmediatamente ──────
-    const savedTheme   = localStorage.getItem('theme')          || 'light';
-    const hideBg       = localStorage.getItem('hideBackgrounds') === 'true';
 
-    document.documentElement.setAttribute('data-theme',   savedTheme);
-    document.documentElement.setAttribute('data-hide-bg', hideBg);
+    const temaGuardado = localStorage.getItem('theme') || 'light';
+    const fondosOcultos =
+        localStorage.getItem('hideBackgrounds') === 'true';
 
-    // ── 2. Función pública: cambiar tema ────────────────────
+    // Aplicar preferencias antes de cargar la página
+    document.documentElement.setAttribute('data-theme', temaGuardado);
+    document.documentElement.setAttribute('data-hide-bg', fondosOcultos);
+
+
+    // ========================================================
+    // TEMA
+    // ========================================================
+
     window.setTheme = function (theme) {
         document.documentElement.setAttribute('data-theme', theme);
         localStorage.setItem('theme', theme);
-        // Sincronizar todos los toggles de la página
-        document.querySelectorAll('.theme-toggle-checkbox').forEach(cb => {
-            cb.checked = (theme === 'dark');
-        });
-        document.querySelectorAll('.theme-toggle-label').forEach(lbl => {
-            lbl.title = (theme === 'dark') ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro';
-        });
+
+        actualizarControlesTema(theme);
     };
+
 
     window.toggleTheme = function () {
-        const current = localStorage.getItem('theme') || 'light';
-        window.setTheme(current === 'dark' ? 'light' : 'dark');
+        const temaActual =
+            localStorage.getItem('theme') || 'light';
+
+        const nuevoTema =
+            temaActual === 'dark'
+                ? 'light'
+                : 'dark';
+
+        window.setTheme(nuevoTema);
     };
 
-    // ── 3. Función pública: ocultar/mostrar fondos ──────────
-    window.setHideBg = function (hide) {
-        document.documentElement.setAttribute('data-hide-bg', hide);
-        localStorage.setItem('hideBackgrounds', hide);
-        const cb = document.getElementById('hideBgCheck');
-        if (cb) cb.checked = hide;
+
+    function actualizarControlesTema(theme) {
+        const oscuro = theme === 'dark';
+
+        // Toggle de dashboards
+        document
+            .querySelectorAll('.theme-toggle-checkbox')
+            .forEach(toggle => {
+                toggle.checked = oscuro;
+            });
+
+        document
+            .querySelectorAll('.theme-toggle-label')
+            .forEach(label => {
+                label.title = oscuro
+                    ? 'Cambiar a modo claro'
+                    : 'Cambiar a modo oscuro';
+            });
+
+
+        // Botón de inicio.html
+        const botonInicio =
+            document.getElementById('inicioThemeBtn');
+
+        if (botonInicio) {
+            botonInicio.textContent = oscuro
+                ? '☀️ Modo claro'
+                : '🌙 Modo oscuro';
+        }
+    }
+
+
+    // ========================================================
+    // FONDOS
+    // ========================================================
+
+    window.setHideBg = function (ocultar) {
+        document.documentElement.setAttribute(
+            'data-hide-bg',
+            ocultar
+        );
+
+        localStorage.setItem(
+            'hideBackgrounds',
+            ocultar
+        );
+
+        const checkbox =
+            document.getElementById('hideBgCheck');
+
+        if (checkbox) {
+            checkbox.checked = ocultar;
+        }
     };
 
-    // ── 4. Inyectar el toggle en la topbar ──────────────────
-    function injectThemeToggle() {
-        const topbarRight = document.querySelector('.topbar-right');
-        if (!topbarRight) return;
 
-        const isDark = (localStorage.getItem('theme') || 'light') === 'dark';
+    // ========================================================
+    // TOGGLE PARA DASHBOARDS
+    // ========================================================
 
-        const wrapper = document.createElement('div');
-        wrapper.className = 'theme-toggle-wrap';
-        wrapper.innerHTML = `
+    function crearToggleDashboard() {
+        const topbar =
+            document.querySelector('.topbar-right');
+
+        if (!topbar) return;
+
+        // Evita duplicarlo
+        if (topbar.querySelector('.theme-toggle-wrap')) {
+            return;
+        }
+
+        const oscuro =
+            (localStorage.getItem('theme') || 'light') === 'dark';
+
+        const contenedor =
+            document.createElement('div');
+
+        contenedor.className = 'theme-toggle-wrap';
+
+        contenedor.innerHTML = `
             <span class="theme-icon">☀️</span>
-            <label class="theme-toggle-label" title="${isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}">
-                <input type="checkbox" class="theme-toggle-checkbox" ${isDark ? 'checked' : ''}>
+
+            <label
+                class="theme-toggle-label"
+                title="${oscuro
+                    ? 'Cambiar a modo claro'
+                    : 'Cambiar a modo oscuro'}"
+            >
+                <input
+                    type="checkbox"
+                    class="theme-toggle-checkbox"
+                    ${oscuro ? 'checked' : ''}
+                >
+
                 <span class="theme-toggle-slider"></span>
             </label>
+
             <span class="theme-icon">🌙</span>
         `;
 
-        // Insertar antes del primer botón
-        topbarRight.insertBefore(wrapper, topbarRight.firstChild);
+        topbar.insertBefore(
+            contenedor,
+            topbar.firstChild
+        );
 
-        wrapper.querySelector('.theme-toggle-checkbox').addEventListener('change', function () {
-            window.setTheme(this.checked ? 'dark' : 'light');
+        const checkbox =
+            contenedor.querySelector(
+                '.theme-toggle-checkbox'
+            );
+
+        checkbox.addEventListener('change', function () {
+            window.setTheme(
+                this.checked
+                    ? 'dark'
+                    : 'light'
+            );
         });
     }
 
-    // ── 5. Modal de configuración completa (juego) ──────────
-    window.abrirConfiguracion = function () {
-        const currentTheme = localStorage.getItem('theme') || 'light';
-        const currentHideBg = localStorage.getItem('hideBackgrounds') === 'true';
 
-        Swal.fire({
+    // ========================================================
+    // MODAL DE CONFIGURACIÓN
+    // ========================================================
+
+    window.abrirConfiguracion = async function () {
+
+        if (typeof Swal === 'undefined') {
+            console.error('SweetAlert2 no está disponible.');
+            return;
+        }
+
+        const temaActual =
+            localStorage.getItem('theme') || 'light';
+
+        const fondosOcultos =
+            localStorage.getItem('hideBackgrounds') === 'true';
+
+
+        const resultado = await Swal.fire({
             title: '⚙️ Configuración',
+
             html: `
-                <div style="text-align:left;font-size:1rem;padding:10px;">
-                    <div style="margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;padding:14px;background:rgba(0,0,0,0.05);border-radius:12px;">
-                        <label for="swal-theme" style="cursor:pointer;">
-                            <strong>${currentTheme === 'dark' ? '🌙 Modo Oscuro' : '☀️ Modo Claro'}</strong><br>
-                            <small style="font-weight:normal;opacity:0.7;">Cambia la apariencia de todas las pantallas</small>
+                <div style="text-align:left;padding:10px;">
+
+                    <div style="
+                        margin-bottom:18px;
+                        padding:14px;
+                        border-radius:12px;
+                        background:rgba(0,0,0,.05);
+                    ">
+                        <label>
+                            <strong>🌙 Modo oscuro</strong>
                         </label>
-                        <input type="checkbox" id="swal-theme" ${currentTheme === 'dark' ? 'checked' : ''} style="width:22px;height:22px;cursor:pointer;accent-color:#e76f51;">
+
+                        <input
+                            id="swal-theme"
+                            type="checkbox"
+                            ${temaActual === 'dark'
+                                ? 'checked'
+                                : ''}
+                        >
                     </div>
-                    <div style="display:flex;justify-content:space-between;align-items:center;padding:14px;background:rgba(0,0,0,0.05);border-radius:12px;">
-                        <label for="swal-hide-bg" style="cursor:pointer;">
-                            <strong>🖼️ Ocultar imágenes de fondo</strong><br>
-                            <small style="font-weight:normal;opacity:0.7;">Mejora el rendimiento en dispositivos lentos</small>
+
+
+                    <div style="
+                        padding:14px;
+                        border-radius:12px;
+                        background:rgba(0,0,0,.05);
+                    ">
+                        <label>
+                            <strong>
+                                🖼️ Ocultar imágenes de fondo
+                            </strong>
                         </label>
-                        <input type="checkbox" id="swal-hide-bg" ${currentHideBg ? 'checked' : ''} style="width:22px;height:22px;cursor:pointer;accent-color:#e76f51;">
+
+                        <input
+                            id="swal-hide-bg"
+                            type="checkbox"
+                            ${fondosOcultos
+                                ? 'checked'
+                                : ''}
+                        >
                     </div>
+
                 </div>
             `,
+
             showCancelButton: true,
-            confirmButtonText: '💾 Guardar',
+            confirmButtonText: 'Guardar',
             cancelButtonText: 'Cancelar',
-            confirmButtonColor: '#e76f51',
-            cancelButtonColor: '#6c757d',
-            focusConfirm: false,
+
             preConfirm: () => ({
-                isDark:    document.getElementById('swal-theme').checked,
-                isHideBg:  document.getElementById('swal-hide-bg').checked
+                oscuro:
+                    document
+                        .getElementById('swal-theme')
+                        .checked,
+
+                ocultarFondos:
+                    document
+                        .getElementById('swal-hide-bg')
+                        .checked
             })
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.setTheme(result.value.isDark ? 'dark' : 'light');
-                window.setHideBg(result.value.isHideBg);
-                Swal.fire({
-                    icon: 'success', title: '¡Guardado!',
-                    text: 'Configuración actualizada.',
-                    timer: 1500, showConfirmButton: false
-                });
-            }
         });
+
+
+        if (!resultado.isConfirmed) {
+            return;
+        }
+
+
+        window.setTheme(
+            resultado.value.oscuro
+                ? 'dark'
+                : 'light'
+        );
+
+        window.setHideBg(
+            resultado.value.ocultarFondos
+        );
     };
 
-    // ── 6. Init al cargar el DOM ────────────────────────────
-    window.escapeHtml = function(unsafe) {
-    if (unsafe == null) return '';
-    return unsafe.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-};
 
-document.addEventListener('DOMContentLoaded', () => {
-        injectThemeToggle();
+    // ========================================================
+    // ESCAPAR HTML
+    // ========================================================
 
-        // Botón configBtn (pantallas del juego)
-        const configBtn = document.getElementById('configBtn');
-        if (configBtn) configBtn.addEventListener('click', window.abrirConfiguracion);
+    window.escapeHtml = function (valor) {
 
-        // Botón configuración del sidebar (alumno)
-        const sideConfigBtn = document.getElementById('sideConfigBtn');
-        if (sideConfigBtn) sideConfigBtn.addEventListener('click', window.abrirConfiguracion);
-
-        // ── Inyectar botón "Volver al Admin" si estamos en modo vista ──
-        const topbarRight = document.querySelector('.topbar-right');
-        if (topbarRight) {
-            fetch('api/switch_role.php')
-                .then(r => r.json())
-                .then(info => {
-                    if (!info.emulando) return;
-
-                    const rolLabel = info.rol_activo === 'docente' ? 'Docente' : 'Alumno';
-                    const btn = document.createElement('button');
-                    btn.className = 'tb-btn';
-                    btn.style.marginRight = '8px';
-                    btn.innerHTML = `<i class="fas fa-arrow-left"></i> Volver a Admin`;
-                    btn.title = 'Estás viendo el panel como ' + rolLabel + '. Haz clic para regresar al panel de administrador.';
-
-                    btn.addEventListener('click', async () => {
-                        try {
-                            const r = await fetch('api/switch_role.php', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ rol: 'admin' })
-                            }).then(r => r.json());
-                            if (r.ok) window.location.href = r.redirect;
-                        } catch(e) {}
-                    });
-
-                    // Insertar ANTES del toggle de tema (primer hijo)
-                    topbarRight.insertBefore(btn, topbarRight.firstChild);
-                })
-                .catch(() => {}); // silencioso si no existe el endpoint
+        if (valor == null) {
+            return '';
         }
-    });
+
+        return String(valor)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    };
+
+
+    // ========================================================
+    // INICIALIZACIÓN
+    // ========================================================
+
+    document.addEventListener(
+        'DOMContentLoaded',
+        () => {
+
+            crearToggleDashboard();
+
+            const temaActual =
+                localStorage.getItem('theme') || 'light';
+
+            actualizarControlesTema(temaActual);
+
+
+            // Configuración de algunas pantallas
+            const configBtn =
+                document.getElementById('configBtn');
+
+            if (configBtn) {
+                configBtn.addEventListener(
+                    'click',
+                    window.abrirConfiguracion
+                );
+            }
+
+
+            // Configuración del dashboard alumno
+            const sideConfigBtn =
+                document.getElementById('sideConfigBtn');
+
+            if (sideConfigBtn) {
+                sideConfigBtn.addEventListener(
+                    'click',
+                    window.abrirConfiguracion
+                );
+            }
+        }
+    );
+
 })();

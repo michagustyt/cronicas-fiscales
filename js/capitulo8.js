@@ -479,7 +479,7 @@ async function mostrarVictoria() {
     barraSuperiorEl.classList.add("oculto");
     const totalPreguntas = preguntas.length;
     const precisionNivel = ((puntajeNivel / totalPreguntas) * 100).toFixed(0);
-    document.body.style.backgroundImage = `url('../assets/fondoVictoria.png')`;
+    document.body.style.backgroundImage = `url('../assets/fondovictoria.png')`;
 
     try {
         // 1. Obtener datos actuales del jugador

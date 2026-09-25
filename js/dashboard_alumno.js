@@ -144,11 +144,47 @@ document.querySelectorAll('.nav-item[data-section]').forEach(btn => {
 });
 
 const logoutBtn = document.getElementById('logoutBtn');
+
 if (logoutBtn) {
-    logoutBtn.addEventListener('click', async () => {
-      await supabase.auth.signOut();
-      window.location.href = 'login.html';
-    });
+
+    logoutBtn.addEventListener(
+        'click',
+        async () => {
+
+            logoutBtn.disabled = true;
+            logoutBtn.textContent = 'Saliendo...';
+
+            try {
+
+                const { error } =
+                    await supabase.auth.signOut();
+
+                if (error) {
+                    throw error;
+                }
+
+                window.location.replace(
+                    'inicio.html'
+                );
+
+            } catch (error) {
+
+                console.error(
+                    'Error al cerrar sesión:',
+                    error
+                );
+
+                logoutBtn.disabled = false;
+                logoutBtn.textContent = 'Salir';
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'No se pudo cerrar sesión',
+                    text: 'Inténtalo nuevamente.'
+                });
+            }
+        }
+    );
 }
 
 window.cerrarModal = (id) => {
