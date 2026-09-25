@@ -1,91 +1,153 @@
+import { supabase } from './supabase.js';
+
 const audio = document.getElementById('background-music');
-const musicButton = document.querySelector('.music-button');
 const musicIcon = document.getElementById('music-icon');
 const musicText = document.getElementById('music-text');
+
 let isMusicPlaying = false;
 
-audio.volume = 0.3;
+if (audio) {
+    audio.volume = 0.3;
+}
 
-// Verificar sesión activa al cargar inicio
-window.addEventListener('load', async () => {
-    try {
-        const response = await fetch('api/login.php');
-        const data = await response.json();
-        if (!data.autenticado) {
-            window.location.href = 'login.html';
-        }
-        // Si está autenticado, permanece en inicio.html (página de juego)
-    } catch (error) {
-        console.error('Error verificando sesión:', error);
+
+/* =========================
+   SESIÓN
+========================= */
+
+async function obtenerSesion() {
+    const {
+        data: { session },
+        error
+    } = await supabase.auth.getSession();
+
+    if (error) {
+        console.error('Error al obtener la sesión:', error.message);
+        return null;
     }
-});
 
-// Botón de configuración: muestra info del usuario logueado
-document.getElementById('configBtn').addEventListener('click', async () => {
-    try {
-        const response = await fetch('api/perfil.php');
-        if (response.status === 401) {
-            window.location.href = 'login.html';
-            return;
-        }
-        const data = await response.json();
-        if (data.usuario) {
-            const u = data.usuario;
-            Swal.fire({
-                title: '⚙️ Mi cuenta',
-                html: `
-                    <div style="text-align:left; font-size:15px; line-height:2">
-                        <p><strong>👤 Nombre:</strong> ${u.nombre}</p>
-                        <p><strong>📧 Email:</strong> ${u.email}</p>
-                        <p><strong>🎓 Rol:</strong> ${u.rol}</p>
-                    </div>
-                `,
-                showCancelButton: true,
-                confirmButtonText: '🚪 Cerrar sesión',
-                cancelButtonText: 'Cerrar',
-                confirmButtonColor: '#dc3545',
-                cancelButtonColor: '#6c757d'
-            }).then(async (result) => {
-                if (result.isConfirmed) {
-                    await fetch('api/logout.php', { method: 'POST' });
-                    window.location.href = 'login.html';
-                }
-            });
-        }
-    } catch (error) {
-        console.error('Error:', error);
+    return session;
+}
+
+
+/* =========================
+   USUARIO
+========================= */
+
+async function obtenerUsuario(userId) {
+    const { data: usuario, error } = await supabase
+        .from('usuarios')
+        .select('nombre, email, rol')
+        .eq('id', userId)
+        .single();
+
+    if (error) {
+        console.error('Error al obtener usuario:', error.message);
+        return null;
     }
-});
 
-function iniciarJuego() {
-    Swal.fire({
-        title: "¡Buena suerte! 😉",
-        text: "¡El juego comenzará pronto!",
-        icon: ""
-    });
-    window.location.href = 'introduccion.html';
-    if (!isMusicPlaying) {
-        audio.play();
-        isMusicPlaying = true;
-        musicIcon.textContent = '🔇';
-        musicText.textContent = 'Silencio';
+    return usuario;
+}
+
+
+/* =========================
+   REDIRECCIÓN SEGÚN ROL
+========================= */
+
+function redirigirSegunRol(rol) {
+    switch (rol) {
+        case 'alumno':
+            window.location.href = 'dashboard_alumno.html';
+            break;
+
+        case 'docente':
+            window.location.href = 'dashboard_docente.html';
+            break;
+
+        case 'admin':
+            window.location.href = 'dashboard_admin.html';
+            break;
+
+        default:
+            window.location.href = 'login.html';
     }
 }
+
+
+/* =========================
+   COMENZAR AVENTURA
+========================= */
+
+async function iniciarJuego() {
+    const session = await obtenerSesion();
+
+    // Si no tiene sesión, primero debe iniciar sesión.
+    if (!session) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    const usuario = await obtenerUsuario(session.user.id);
+
+    // Si existe sesión pero no encontramos al usuario,
+    // lo mandamos nuevamente al login.
+    if (!usuario) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    redirigirSegunRol(usuario.rol);
+}
+
+
+/* =========================
+   MÚSICA
+========================= */
 
 function toggleMusic() {
+    if (!audio) {
+        console.error('No se encontró el elemento de audio.');
+        return;
+    }
+
     if (isMusicPlaying) {
         audio.pause();
+
         isMusicPlaying = false;
-        musicIcon.textContent = '🎵';
-        musicText.textContent = 'Música';
-    } else {
-        audio.play().then(() => {
-            isMusicPlaying = true;
-            musicIcon.textContent = '🔇';
-            musicText.textContent = 'Silencio';
-        }).catch(() => {});
+
+        if (musicIcon) {
+            musicIcon.textContent = '🎵';
+        }
+
+        if (musicText) {
+            musicText.textContent = 'Música';
+        }
+
+        return;
     }
+
+    audio.play()
+        .then(() => {
+            isMusicPlaying = true;
+
+            if (musicIcon) {
+                musicIcon.textContent = '🔇';
+            }
+
+            if (musicText) {
+                musicText.textContent = 'Silencio';
+            }
+        })
+        .catch(error => {
+            console.error('No se pudo reproducir el audio:', error);
+        });
 }
+
+
+/* =========================
+   FUNCIONES DISPONIBLES
+   PARA EL HTML
+========================= */
 
 window.toggleMusic = toggleMusic;
 window.iniciarJuego = iniciarJuego;

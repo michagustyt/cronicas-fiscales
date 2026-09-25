@@ -10,17 +10,26 @@
 <link rel="stylesheet" href="css/dark-mode.css">
 <script src="js/theme.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 </head>
 <body>
 
 <audio id="background-music" loop preload="auto">
-    <source src="assets/Audio.mp3" type="audio/mpeg">
+    <source src="assets/audio.mp3" type="audio/mpeg">
     Tu navegador no soporta el elemento de audio.
 </audio>
 
 <div class="portada-container">
-    <button id="configBtn" class="config-btn">⚙️ Configuración</button>
-    <button class="music-button" onclick="toggleMusic()">
+    <button
+        id="inicioThemeBtn"
+        class="config-btn"
+        type="button"
+        onclick="toggleTheme()"
+    >
+        🌙 Modo oscuro
+    </button>   
+     <button class="music-button" onclick="toggleMusic()">
         <span id="music-icon">🎵</span> 
         <span id="music-text">Música</span>
     </button>
@@ -40,7 +49,9 @@
     </div>
 </div>
 
-<script src="js/inicio.js"></script>
+<script type="module"
+ src="js/inicio.js"
+ ></script>
 
 </body>
 </html>
